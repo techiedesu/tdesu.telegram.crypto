@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/TDesu.Telegram.Crypto/TDesu.Telegram.Crypto.fsproj" />
+  <Project Path="tests/TDesu.Telegram.Crypto.Tests/TDesu.Telegram.Crypto.Tests.fsproj" />
+</Solution>

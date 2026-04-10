@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <RootNamespace>TDesu.Crypto</RootNamespace>
+        <Authors>TDesu</Authors>
+        <Description>Cryptographic primitives for Telegram MTProto 2.0: AES-IGE, Diffie-Hellman, RSA, key derivation.</Description>
+        <PackageTags>fsharp;telegram;mtproto;cryptography;aes-ige;diffie-hellman</PackageTags>
+        <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/techiedesu/TDesu.Telegram.Crypto</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/techiedesu/TDesu.Telegram.Crypto</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <IsPackable>true</IsPackable>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <DebugType>embedded</DebugType>
+        <MinVerTagPrefix>v</MinVerTagPrefix>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="../../README.md" Pack="true" PackagePath="/" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="AesIge.fs" />
+        <Compile Include="KeyDerivation.fs" />
+        <Compile Include="Rsa.fs" />
+        <Compile Include="DiffieHellman.fs" />
+        <Compile Include="Padding.fs" />
+        <Compile Include="AuthKeyId.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="TDesu.FSharp" />
+        <PackageReference Include="MinVer" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" />
+    </ItemGroup>
+</Project>

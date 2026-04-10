@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <IsTestProject>true</IsTestProject>
+        <IsPackable>false</IsPackable>
+        <RootNamespace>TDesu.Crypto.Tests</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="TestHelpers.fs" />
+        <Compile Include="Crypto\AesIgeTests.fs" />
+        <Compile Include="Crypto\KeyDerivationTests.fs" />
+        <Compile Include="Crypto\DiffieHellmanTests.fs" />
+        <Compile Include="Crypto\DhValidationTests.fs" />
+        <Compile Include="Crypto\PaddingTests.fs" />
+        <Compile Include="Crypto\AuthKeyIdTests.fs" />
+        <Compile Include="Crypto\RsaTests.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\TDesu.Telegram.Crypto\TDesu.Telegram.Crypto.fsproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="NUnit" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="NUnit3TestAdapter" />
+        <PackageReference Include="coverlet.collector" />
+        <PackageReference Include="FsCheck" />
+        <PackageReference Include="FsCheck.NUnit" />
+    </ItemGroup>
+</Project>
