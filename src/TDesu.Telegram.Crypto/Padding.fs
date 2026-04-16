@@ -11,7 +11,12 @@ module Padding =
         RandomNumberGenerator.Fill(bytes)
         bytes
 
-    /// Add random padding (12-1024 bytes, result length divisible by 16)
+    /// Add random padding (12-1024 bytes, result length divisible by 16).
+    /// Used for auth_key-encrypted MTProto 2.0 messages — the post-auth wire
+    /// format requires padding ≥ 12 bytes to mask plaintext length.
+    /// For pre-auth handshake messages (server_DH_inner_data,
+    /// client_DH_inner_data), use `addHandshakePadding` instead — TDLib's
+    /// strict parser rejects > 15 bytes there with "Too much pad".
     let addPadding (data: byte[]) : byte[] =
         let minPadding = 12
         let dataLen = data.Length
@@ -43,3 +48,22 @@ module Padding =
         let padding = randomBytes paddingLen
         System.Buffer.BlockCopy(padding, 0, result, dataLen, paddingLen)
         result
+
+    /// Add 0..15 bytes random padding so the result length is divisible by 16.
+    /// Used for the MTProto 2.0 handshake `answer_with_hash` envelope:
+    ///   answer_with_hash := SHA1(answer) + answer + (0..15 random bytes)
+    /// where the result is then AES-IGE-256 encrypted. TDLib's
+    /// `AuthKeyHandshake::on_server_dh_params` rejects > 15 padding bytes
+    /// with "Too much pad" (Handshake.cpp:204) — distinct from the post-auth
+    /// `addPadding` (12..1024) rule.
+    let addHandshakePadding (data: byte[]) : byte[] =
+        let rem = data.Length % 16
+        if rem = 0 then
+            data
+        else
+            let paddingLen = 16 - rem
+            let result = Array.zeroCreate<byte> (data.Length + paddingLen)
+            System.Buffer.BlockCopy(data, 0, result, 0, data.Length)
+            let padding = randomBytes paddingLen
+            System.Buffer.BlockCopy(padding, 0, result, data.Length, paddingLen)
+            result
