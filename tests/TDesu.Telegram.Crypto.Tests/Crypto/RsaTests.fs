@@ -8,14 +8,41 @@ open TDesu.Crypto.Tests
 [<TestFixture>]
 module RsaTests =
 
+    /// TL serialize_bytes: length-prefixed, padded to a 4-byte boundary.
+    let private serBytes (data: byte[]) : byte[] =
+        let len = data.Length
+        if len < 254 then
+            let total = 1 + len
+            Array.concat [ [| byte len |]; data; Array.zeroCreate ((4 - total % 4) % 4) ]
+        else
+            let header = [| 254uy; byte (len &&& 0xff); byte ((len >>> 8) &&& 0xff); byte ((len >>> 16) &&& 0xff) |]
+            let total = 4 + len
+            Array.concat [ header; data; Array.zeroCreate ((4 - total % 4) % 4) ]
+
+    /// Telegram key fingerprint = low 64 bits of SHA1(serialize(n) ++ serialize(e)).
+    let private computeFingerprint (key: Rsa.RsaPublicKey) : int64 =
+        let payload = Array.append (serBytes key.Modulus) (serBytes key.Exponent)
+        let h = SHA1.HashData(payload)
+        System.BitConverter.ToInt64(h, h.Length - 8)
+
     [<Test>]
     let ``publicKeys list is non-empty`` () =
         Assert.That(Rsa.publicKeys.Length, Is.GreaterThan(0))
 
+    /// Regression guard: a corrupted/truncated modulus or a mislabelled fingerprint
+    /// (the prod DC silently rejects req_DH_params with transport error -404) must fail
+    /// here, not in a live handshake.
     [<Test>]
-    let ``production key has correct fingerprint`` () =
-        let key = Rsa.publicKeys |> List.head
-        equals key.Fingerprint -3414540481677951611L
+    let ``every public key fingerprint matches its modulus and exponent`` () =
+        for key in Rsa.publicKeys do
+            equals key.Modulus.Length 256
+            equals (computeFingerprint key) key.Fingerprint
+
+    [<Test>]
+    let ``production keys cover the fingerprints prod DCs advertise`` () =
+        let fps = Rsa.publicKeys |> List.map (fun k -> k.Fingerprint) |> Set.ofList
+        Assert.That(fps.Contains 0x0bc35f3509f7b7a5L, Is.True)
+        Assert.That(fps.Contains 0xc3b42b026ce86b21L, Is.True)
 
     [<Test>]
     let ``production key exponent is 65537`` () =
